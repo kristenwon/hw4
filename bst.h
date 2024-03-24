@@ -241,7 +241,6 @@ protected:
     static Node<Key, Value>* predecessor(Node<Key, Value>* current); // TODO
     // Note:  static means these functions don't have a "this" pointer
     //        and instead just use the input argument.
-    static Node<Key, Value>* successor(Node<Key, Value>* current);
 
     // Provided helper functions
     virtual void printRoot (Node<Key, Value> *r) const;
@@ -251,6 +250,7 @@ protected:
     void clear(Node<Key, Value>* node);
     int height(Node<Key, Value>* node) const;
     bool balancedHelper(Node<Key, Value>* node) const;
+    Node<Key, Value>* recurseInsert(Node<Key, Value>* root, const std::pair<const Key, Value>& keyValuePair);
 
 
 protected:
@@ -461,42 +461,32 @@ Value const & BinarySearchTree<Key, Value>::operator[](const Key& key) const
 template<class Key, class Value>
 void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &keyValuePair)
 {
-    // make new node
-    Node<Key, Value>* newNode = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
-    // empty bst
-    if(root_ == NULL){
-        root_ = newNode;
-        return;
-    }
+    root_ = recurseInsert(root_, keyValuePair);
+}
 
-    Node<Key, Value>* current = root_;
-    Node<Key, Value>* parent = NULL;
-
-    while(current != NULL){
-        parent = current;
-        // greater, successor
-        if(keyValuePair.first < current->getKey()){
-            current = current->getLeft();
-        }
-        // less, predecessor
-        else if(keyValuePair.first > current->getKey()){
-            current = current->getRight();
-        }
-        // same val
-        else {
-            current->setValue(keyValuePair.second);
-            delete newNode;
-            return;
-        }
+template<class Key, class Value>
+Node<Key, Value>* BinarySearchTree<Key, Value>::recurseInsert(Node<Key, Value>* root, const std::pair<const Key, Value>& keyValuePair)
+{
+    // empty tree or leaf node
+    if(root == NULL){
+        root = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
+        return root;
     }
-
-    if(keyValuePair.first < parent->getKey()){
-        parent->setLeft(newNode);
+    // left
+    if(keyValuePair.first < root->getKey()){
+        root->setLeft(recurseInsert(root->getLeft(), keyValuePair));
+        root->getLeft()->setParent(root);
     }
+    // right
+    else if(keyValuePair.first > root->getKey()){
+        root->setRight(recurseInsert(root->getRight(),keyValuePair));
+        root->getRight()->setParent(root);
+    }
+    // equal
     else {
-        parent->setRight(newNode);
+        root->setValue(keyValuePair.second);
     }
-    newNode->setParent(parent);
+    return root;
 }
 
 
@@ -557,29 +547,6 @@ BinarySearchTree<Key, Value>::predecessor(Node<Key, Value>* current)
     else {
         Node<Key, Value>* parent = current->getParent();
         while (parent != NULL && current == parent->getLeft()) {
-            current = parent;
-            parent = parent->getParent();
-        }
-        return parent;
-    }
-}
-
-template<class Key, class Value>
-Node<Key, Value>*
-BinarySearchTree<Key, Value>::successor(Node<Key, Value>* current)
-{
-    // TODO
-    // we have left child
-    if(current->getRight() != NULL){
-        Node<Key, Value>* pred = current->getRight();
-        while(pred->getLeft() != NULL){
-            pred = pred->getLeft();
-        }
-        return pred;
-    }
-    else {
-        Node<Key, Value>* parent = current->getParent();
-        while (parent != NULL && current == parent->getRight()) {
             current = parent;
             parent = parent->getParent();
         }
