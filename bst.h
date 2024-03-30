@@ -461,32 +461,43 @@ Value const & BinarySearchTree<Key, Value>::operator[](const Key& key) const
 template<class Key, class Value>
 void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &keyValuePair)
 {
-    root_ = recurseInsert(root_, keyValuePair);
-}
+    // TODO
+    // make new node
+    Node<Key, Value>* newNode = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
+    // empty bst
+    if(root_ == NULL){
+        root_ = newNode;
+        return;
+    }
 
-template<class Key, class Value>
-Node<Key, Value>* BinarySearchTree<Key, Value>::recurseInsert(Node<Key, Value>* root, const std::pair<const Key, Value>& keyValuePair)
-{
-    // empty tree or leaf node
-    if(root == NULL){
-        root = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
-        return root;
+    Node<Key, Value>* current = root_;
+    Node<Key, Value>* parent = NULL;
+
+    while(current != NULL){
+        parent = current;
+        // greater, successor
+        if(keyValuePair.first < current->getKey()){
+            current = current->getLeft();
+        }
+        // less, predecessor
+        else if(keyValuePair.first > current->getKey()){
+            current = current->getRight();
+        }
+        // same val
+        else {
+            current->setValue(keyValuePair.second);
+            delete newNode;
+            return;
+        }
     }
-    // left
-    if(keyValuePair.first < root->getKey()){
-        root->setLeft(recurseInsert(root->getLeft(), keyValuePair));
-        root->getLeft()->setParent(root);
+
+    if(keyValuePair.first < parent->getKey()){
+        parent->setLeft(newNode);
     }
-    // right
-    else if(keyValuePair.first > root->getKey()){
-        root->setRight(recurseInsert(root->getRight(),keyValuePair));
-        root->getRight()->setParent(root);
-    }
-    // equal
     else {
-        root->setValue(keyValuePair.second);
+        parent->setRight(newNode);
     }
-    return root;
+    newNode->setParent(parent);
 }
 
 
@@ -503,20 +514,20 @@ void BinarySearchTree<Key, Value>::remove(const Key& key)
     if(removeNode == NULL){
         return;
     }
-    if (removeNode->getLeft() != nullptr && removeNode->getRight() != nullptr) {
-        // Node has two children
+    // node has two children
+    if (removeNode->getLeft() != NULL && removeNode->getRight() != NULL) {
         Node<Key, Value>* pred = predecessor(removeNode);
         nodeSwap(pred, removeNode);
     }
 
     // removeNode has at most one child
-    Node<Key, Value>* child = (removeNode->getLeft() != nullptr) ? removeNode->getLeft() : removeNode->getRight();
+    Node<Key, Value>* child = (removeNode->getLeft() != NULL) ? removeNode->getLeft() : removeNode->getRight();
     Node<Key, Value>* parent = removeNode->getParent();
 
-    if (child != nullptr)
+    if (child != NULL)
         child->setParent(parent);
 
-    if (parent == nullptr) {
+    if (parent == NULL) {
         // removeNode is the root
         root_ = child;
     } else {
