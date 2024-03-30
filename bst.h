@@ -247,7 +247,6 @@ protected:
     virtual void nodeSwap( Node<Key,Value>* n1, Node<Key,Value>* n2) ;
 
     // Add helper functions here
-    void clear(Node<Key, Value>* node);
     int height(Node<Key, Value>* node) const;
     bool balancedHelper(Node<Key, Value>* node) const;
     Node<Key, Value>* recurseInsert(Node<Key, Value>* root, const std::pair<const Key, Value>& keyValuePair);
@@ -576,7 +575,21 @@ BinarySearchTree<Key, Value>::predecessor(Node<Key, Value>* current)
 template<typename Key, typename Value>
 void BinarySearchTree<Key, Value>::clear()
 {
-    clear(root_);
+    Node<Key, Value>* current = root_;
+    Node<Key, Value>* lastRight = nullptr;
+
+    while (current != nullptr) {
+        if (current->getLeft() != nullptr) {
+            Node<Key, Value>* temp = current->getLeft();
+            current->setLeft(nullptr);
+            delete current;
+            current = temp;
+        } else {
+            lastRight = current->getRight();
+            delete current;
+            current = lastRight;
+        }
+    }
     root_ = NULL; 
 }
 
@@ -717,18 +730,6 @@ void BinarySearchTree<Key, Value>::nodeSwap( Node<Key,Value>* n1, Node<Key,Value
         this->root_ = n1;
     }
 
-}
-
-template<typename Key, typename Value>
-void BinarySearchTree<Key, Value>::clear(Node<Key, Value>* node)
-{
-    if (node != NULL) {
-        clear(node->getLeft());
-        clear(node->getRight());
-
-        // delete current node
-        delete node;
-    }
 }
 
 template<typename Key, typename Value>
