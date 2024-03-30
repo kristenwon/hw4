@@ -548,6 +548,9 @@ BinarySearchTree<Key, Value>::predecessor(Node<Key, Value>* current)
 {
     // TODO
     // we have left child
+    if(current == NULL){
+        return NULL;
+    }
     if(current->getLeft() != NULL){
         Node<Key, Value>* pred = current->getLeft();
         while(pred->getRight() != NULL){

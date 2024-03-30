@@ -141,6 +141,7 @@ protected:
     void removeFix(AVLNode<Key, Value>* node, int diff);
     void rotateRight(AVLNode<Key, Value>* grandparent); 
     void rotateLeft(AVLNode<Key, Value>* parent);
+    AVLNode<Key, Value>* predecessor(AVLNode<Key, Value>* current);
 
 
 };
@@ -408,7 +409,6 @@ void AVLTree<Key, Value>:: remove(const Key& key)
         } 
     }
 }
-
 template<class Key, class Value>
 void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
     if (node == nullptr)
@@ -417,7 +417,7 @@ void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
     AVLNode<Key, Value>* parent = node->getParent();
     int ndiff = (parent != nullptr && node == parent->getLeft()) ? 1 : -1;
 
-    if (diff == -1) {
+    if(diff == -1){
         // case 1
         if(node->getBalance() + diff == -2){
             AVLNode<Key, Value>* c = node->getLeft();
@@ -426,6 +426,7 @@ void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
                 rotateRight(node);
                 node->setBalance(0);
                 c->setBalance(0);
+                removeFix(parent, ndiff);
             }
             // case 1b - zigzig
             else if(c->getBalance() == 0){
@@ -643,6 +644,37 @@ void AVLTree<Key, Value>::rotateLeft(AVLNode<Key, Value>* parent) {
     parent->setRight(l);
     if(l != NULL){
         l->setParent(parent);
+    }
+}
+
+template<class Key, class Value>
+AVLNode<Key, Value>*
+AVLTree<Key, Value>::predecessor(AVLNode<Key, Value>* current)
+{
+    // TODO
+    // we have left child
+    AVLNode<Key, Value>* pred = NULL;
+    if(current == NULL){
+        return NULL;
+    }
+    if(current->getLeft() != NULL){
+        std::cout << "boom" << std::endl;
+        pred = current->getLeft();
+        while(pred->getRight() != NULL){
+            pred = pred->getRight();
+        }
+        return pred;
+    }
+    else {
+        bool f = false;
+        while(current->getParent() && !f){
+            if(current->getParent()->getRight() != current){
+                pred = current->getParent();
+                f = true;
+            }
+            current = current->getParent();
+        }
+        return pred;
     }
 }
 
