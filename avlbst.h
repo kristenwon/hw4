@@ -328,13 +328,14 @@ template<class Key, class Value>
 void AVLTree<Key, Value>:: remove(const Key& key)
 {
     // TODO
+    // find node n to remove
     AVLNode<Key, Value>* n = static_cast<AVLNode<Key, Value>*>(this->internalFind(key));
     int8_t diff = 0;
     if(this->root_ == NULL || n == NULL){
         return;
     }
 
-    // if n has two children
+    // if n has two children swap positions with predecessor
     if(n->getLeft() != NULL && n->getRight() != NULL){
         AVLNode<Key, Value>* pred = static_cast<AVLNode<Key, Value>*>(BinarySearchTree<Key, Value>::predecessor(n));
         nodeSwap(n, pred);
@@ -351,6 +352,8 @@ void AVLTree<Key, Value>:: remove(const Key& key)
                 diff = -1;
                 parent->setRight(NULL);
             }
+            delete n;
+            removeFix(parent, diff);
         }
     }
     // one child
@@ -364,11 +367,11 @@ void AVLTree<Key, Value>:: remove(const Key& key)
             if(parent != NULL){
                 if(n == parent->getLeft()){
                     diff = 1;
-                    parent->setLeft(NULL);
+                    parent->setLeft(child);
                 }
                 else {
                     diff = -1;
-                    parent->setRight(NULL);
+                    parent->setRight(child);
                 }
             }
             child->setParent(parent);
@@ -384,7 +387,7 @@ void AVLTree<Key, Value>:: remove(const Key& key)
         }
         else {
             child = n->getRight();
-            parent = n->getRight();
+            parent = n->getParent();
             nodeSwap(child, n);
             if(parent != NULL){
                 if(n == parent->getLeft()){
@@ -411,11 +414,17 @@ void AVLTree<Key, Value>:: remove(const Key& key)
 }
 template<class Key, class Value>
 void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
-    if (node == nullptr)
+    if (node == NULL)
         return;
 
     AVLNode<Key, Value>* parent = node->getParent();
-    int ndiff = (parent != nullptr && node == parent->getLeft()) ? 1 : -1;
+    int ndiff = 0;
+    if(parent != NULL){
+        ndiff = 1;
+    }
+    else {
+        ndiff = -1;
+    }
 
     if(diff == -1){
         // case 1
