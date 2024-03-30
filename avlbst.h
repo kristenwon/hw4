@@ -191,7 +191,6 @@ void AVLTree<Key, Value>::insert(const std::pair<const Key, Value>& new_item)
                             insertFix(parent, current);
                         }
                     }
-                    std::cout << "got here" << std::endl;
                     return;
                 }
             }
@@ -246,13 +245,9 @@ void AVLTree<Key, Value>::insertFix(AVLNode<Key, Value>* parent, AVLNode<Key, Va
         else if(grandparent->getBalance() == -2){
             // LL zigzig
             if(parent->getBalance() == -1){
-                std::cout << "zigzgi" << std::endl;
                 rotateRight(grandparent);
-                std::cout << "did ithappen" << std::endl;
                 parent->setBalance(0);
-                std::cout << " i want to go home " << std::endl;
                 grandparent->setBalance(0);
-                std::cout << "Granpa" << std::endl;
             }
             // LR zigzag
             else {
@@ -291,10 +286,9 @@ void AVLTree<Key, Value>::insertFix(AVLNode<Key, Value>* parent, AVLNode<Key, Va
         }
         // case 3
         else if(grandparent->getBalance() == 2){
-            std::cout<< "triggers case 3" << std::endl;
             // RR zigzig
             if(parent->getBalance() == 1){
-                rotateLeft(parent);
+                rotateLeft(grandparent);
                 parent->setBalance(0);
                 grandparent->setBalance(0);
             }
@@ -304,28 +298,21 @@ void AVLTree<Key, Value>::insertFix(AVLNode<Key, Value>* parent, AVLNode<Key, Va
                 rotateLeft(grandparent);
                 // case 3a
                 if(node->getBalance() == 1){
-                    std::cout << "babo" << std::endl;
 
                     parent->setBalance(0);
                     grandparent->setBalance(-1);
                 }
                 // case 3b
                 else if(node->getBalance() == 0){
-                    std::cout << "boba" << std::endl;
                     parent->setBalance(0);
-                    std::cout <<"monica" << std::endl;
                     grandparent->setBalance(0);
                 }
                 // case 3c
                 else if(node->getBalance() == -1){
-                    std::cout << "bobo" << std::endl;
                     parent->setBalance(1);
-                    std::cout << "is it here" << std::endl;
                     grandparent->setBalance(0);
                 }
-                std::cout << "gojo" << std::endl;
                 node->setBalance(0);
-                std::cout << "geto" << std::endl;
             }
         }
     }
