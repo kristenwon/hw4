@@ -330,7 +330,7 @@ void AVLTree<Key, Value>:: remove(const Key& key)
     // find node n to remove
     AVLNode<Key, Value>* n = static_cast<AVLNode<Key, Value>*>(this->internalFind(key));
     int8_t diff = 0;
-    if(this->root_ == NULL || n == NULL){
+    if(n == NULL){
         return;
     }
 
@@ -349,7 +349,6 @@ void AVLTree<Key, Value>:: remove(const Key& key)
             diff = -1;
         }
     }
-
     int children = 0;
     if(n->getParent() == NULL){
         children = 0;
@@ -360,6 +359,7 @@ void AVLTree<Key, Value>:: remove(const Key& key)
     else {
         children = 1;
     }
+
     // leaf node - no children
     if(n->getLeft() == NULL && n->getRight() == NULL){
         if(children == -1){
@@ -409,6 +409,7 @@ void AVLTree<Key, Value>:: remove(const Key& key)
     }
     removeFix(parent, diff);
 }
+
 template<class Key, class Value>
 void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
     if(node == NULL){
@@ -464,6 +465,7 @@ void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
                 removeFix(parent, ndiff);
             }
         }
+    }
     else { // diff = 1
         // mirror case 1
         if(node->getBalance() + diff == 2){
@@ -473,12 +475,14 @@ void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
                 rotateLeft(node);
                 node->setBalance(0);
                 c->setBalance(0);
+                removeFix(parent, ndiff);
             }
             // case 1b - zigzig
             else if(c->getBalance() == 0){
                 rotateLeft(node);
                 node->setBalance(1);
                 c->setBalance(-1);
+                return;
             }
             // case 1c
             else if (c->getBalance() == -1){
@@ -504,8 +508,9 @@ void AVLTree<Key, Value>::removeFix(AVLNode<Key, Value>* node, int diff) {
             }
         }
         // case 2
-        else if(node->getBalance() + diff == -1){
-            node->setBalance(-1);
+        else if(node->getBalance() + diff == 1){
+            node->setBalance(1);
+            return;
         }
         // case 3
         else if(node->getBalance() + diff == 0){
